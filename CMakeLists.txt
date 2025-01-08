@@ -7,6 +7,8 @@ if (MSVC)
     add_compile_options(/utf-8)
 endif()
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set(BATTLE_GAME_ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
 
 add_subdirectory(external/grassland)
