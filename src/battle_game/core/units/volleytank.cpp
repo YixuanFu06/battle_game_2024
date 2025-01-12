@@ -11,14 +11,16 @@ namespace {
 uint32_t volley_body_model_index = 0xffffffffu;
 uint32_t serve_turret_model_index = 0xffffffffu;
 uint32_t spike_turret_model_index = 0xffffffffu;
+uint32_t circle_cover_icon = 0xffffffffu;
+uint32_t CD_bar_segment_index = 0xffffffffu;
 }  // namespace
 
 VolleyTank::VolleyTank(GameCore *game_core, uint32_t id, uint32_t player_id)
     : Unit(game_core, id, player_id) {
-  if (!~volley_body_model_index) {
+  if (!~spike_turret_model_index) {
     auto mgr = AssetsManager::GetInstance();
     {
-      /* spike Turret */
+      /* Spike Turret */
       std::vector<ObjectVertex> turret_vertices;
       std::vector<uint32_t> turret_indices;
       const int precision = 60;
@@ -48,27 +50,93 @@ VolleyTank::VolleyTank(GameCore *game_core, uint32_t id, uint32_t player_id)
       spike_turret_model_index =
           mgr->RegisterModel(turret_vertices, turret_indices);
     }
+  }
+
+  if (!~serve_turret_model_index) {
+    auto mgr = AssetsManager::GetInstance();
     {
-      /* serve Turret */
+      /* Serve Turret */
       serve_turret_model_index = mgr->RegisterModel(
-          {
-              {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
-              {{-0.79f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
-              {{0.79f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
-              {{-0.79f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
-              {{0.79f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+        {
+          {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
+          {{-0.79f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
+          {{0.79f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.3f}},
+          {{-0.79f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+          {{0.79f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
 
-              {{-0.8f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
-              {{0.8f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
-              {{-0.8f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
-              {{0.8f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+          {{-0.8f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
+          {{0.8f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
+          {{-0.8f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+          {{0.8f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
 
-              {{-0.85f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
-              {{0.85f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
-              {{-0.85f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
-              {{0.85f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
-          },
-          {0, 1, 3, 0, 2, 4, 0, 3, 4, 1, 3, 5, 2, 4, 6, 3, 5, 7, 4, 6, 8, 5, 7, 9, 6, 8, 10, 7, 9, 11, 8, 10, 12});
+          {{-0.85f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
+          {{0.85f, 0.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.7f}},
+          {{-0.85f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+          {{0.85f, 25.0f}, {0.0f, 0.0f}, {0.7f, 0.0f, 0.2f, 0.1f}},
+        },
+        {0, 1, 3, 0, 2, 4, 0, 3, 4, 1, 3, 5, 2, 4, 6, 3, 5, 7, 4, 6, 8, 5, 7, 9, 6, 8, 10, 7, 9, 11, 8, 10, 12});
+    }
+  }
+
+  if (!~circle_cover_icon) {
+    auto mgr = AssetsManager::GetInstance();
+    {
+      std::vector<ObjectVertex> turret_vertices;
+      std::vector<uint32_t> turret_indices;
+      const int precision = 300;
+      const float inv_precision = 1.0f / float(precision);
+      turret_vertices.push_back({{0, 0},
+                                {0.0f, 0.0f},
+                                {0.0f, 0.0f, 0.0f, 0.3f}});
+      for (int i = 1; i <= precision; i++) {
+        auto theta = float(i - 1) * inv_precision;
+        theta = theta * glm::pi<float>() * 2.0f;
+        auto sin_theta = std::sin(theta);
+        auto cos_theta = std::cos(theta);
+        turret_vertices.push_back({{sin_theta * 0.9f, cos_theta * 0.9f},
+                                  {0.0f, 0.0f},
+                                  {0.0f, 0.0f, 0.0f, 0.5f}});
+        if (i != precision) {
+          turret_indices.push_back(0);
+          turret_indices.push_back(i);
+          turret_indices.push_back(i + 1);
+        }
+      }
+      turret_indices.push_back(0);
+      turret_indices.push_back(precision);
+      turret_indices.push_back(1);
+      circle_cover_icon =
+          mgr->RegisterModel(turret_vertices, turret_indices);
+    }
+  }
+
+  spikeCDbar_offset_ = {16.0f, -8.0f};
+  background_spikeCDbar_color_ = {0.0f, 0.0f, 0.0f, 0.3f};
+  front_spikeCDbar_color_ = {0.0f, 0.2f, 0.7f, 0.8f};
+
+  serveCDbar_offset_ = {13.0f, -8.0f};
+  background_serveCDbar_color_ = {0.0f, 0.0f, 0.0f, 0.3f};
+  front_serveCDbar_color_ = {0.7f, 0.0f, 0.2f, 0.8f};
+
+  if (!~CD_bar_segment_index) {
+    auto mgr = AssetsManager::GetInstance();
+    {
+      /* A segment of ServeCD Bar */
+      const int precision = 300; // You should also change the precision in RenderServeCDBar() and RenderSpikeCDBar().
+      std::vector<ObjectVertex> serveCD_bar_vertices;
+      std::vector<uint32_t> serveCD_bar_indices;
+      auto theta = glm::pi<float>() * 2.0f / float(precision);
+      auto sin_theta = std::sin(-theta);
+      auto cos_theta = std::cos(-theta);
+
+      CD_bar_segment_index = mgr->RegisterModel(
+        {
+          {{0.0f, 0.9f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+          {{0.0f, 1.1f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+          {{sin_theta * 0.9f, cos_theta * 0.9f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}},
+          {{sin_theta * 1.1f, cos_theta * 1.1f}, {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}}
+        },
+        {0, 1, 2, 1, 2, 3});
     }
   }
 }
@@ -77,29 +145,10 @@ void VolleyTank::Render() {
   battle_game::SetTransformation(position_, rotation_);
   battle_game::SetColor(game_core_->GetPlayerColor(player_id_));
 
-  battle_game::SetRotation(turret_rotation_);
   auto player = game_core_->GetPlayer(player_id_);
-  if (player) {
-    auto &input_data = player->GetInputData();
-    if (input_data.key_down[GLFW_KEY_SPACE] && serve_count_down_ == 0) {
-      SetTexture(0);
-      battle_game::DrawModel(serve_turret_model_index);
-    }
-  }
-
-  battle_game::SetRotation(rotation_);
   SetTexture(BATTLE_GAME_ASSETS_DIR "textures/volleytank.png");
   battle_game::DrawModel(0);
   // battle_game::DrawModel(tank_body_model_index);
-
-  battle_game::SetRotation(turret_rotation_);
-  if (player) {
-    auto &input_data = player->GetInputData();
-    if (input_data.key_down[GLFW_KEY_SPACE] && spike_count_down_ == 0) {
-      SetTexture(0);
-      battle_game::DrawModel(spike_turret_model_index);
-    }
-  }
 }
 
 void VolleyTank::Update() {
@@ -202,6 +251,7 @@ void VolleyTank::Serve() {
   if (serve_count_down_) {
     serve_count_down_--;
   }
+  SetServeCD(1 - serve_count_down_ / (serve_CD_sec_ * kTickPerSecond));
 }
 
 void VolleyTank::Spike() {
@@ -226,6 +276,7 @@ void VolleyTank::Spike() {
   if (spike_count_down_) {
     spike_count_down_--;
   }
+  SetSpikeCD(1 - spike_count_down_ / (spike_CD_sec_ * kTickPerSecond));
 }
 
 bool VolleyTank::IsHit(glm::vec2 position) const {
@@ -233,6 +284,172 @@ bool VolleyTank::IsHit(glm::vec2 position) const {
   return position.x > -0.8f && position.x < 0.8f && position.y > -1.0f &&
          position.y < 1.0f && position.x + position.y < 1.6f &&
          position.y - position.x < 1.6f;
+}
+
+/************************ These are defined for CD bar of Spike ************************/
+
+void VolleyTank::SetSpikeCDBarLength(float new_length) {
+  spikeCDbar_length_ = std::min(new_length, 0.0f);
+}
+void VolleyTank::SetSpikeCDBarOffset(glm::vec2 new_offset) {
+  spikeCDbar_offset_ = new_offset;
+}
+void VolleyTank::SetSpikeCDBarFrontColor(glm::vec4 new_color) {
+  front_spikeCDbar_color_ = new_color;
+}
+void VolleyTank::SetSpikeCDBarBackgroundColor(glm::vec4 new_color) {
+  background_spikeCDbar_color_ = new_color;
+}
+float VolleyTank::GetSpikeCDBarLength() {
+  return spikeCDbar_length_;
+}
+glm::vec2 VolleyTank::GetSpikeCDBarOffset() {
+  return spikeCDbar_offset_;
+}
+glm::vec4 VolleyTank::GetSpikeCDBarFrontColor() {
+  return front_spikeCDbar_color_;
+}
+glm::vec4 VolleyTank::GetSpikeCDBarBackgroundColor() {
+  return background_spikeCDbar_color_;
+}
+
+void VolleyTank::ShowSpikeCDBar() {
+  spikeCDbar_display_ = true;
+}
+void VolleyTank::HideSpikeCDBar() {
+  spikeCDbar_display_ = false;
+}
+
+void VolleyTank::RenderSpikeCDBar() {
+  if (spikeCDbar_display_) {
+    auto parent_unit = game_core_->GetUnit(id_);
+    auto pos = parent_unit->GetPosition() + spikeCDbar_offset_;
+    auto spikeCD = GetSpikeCD();
+    const int precision = 300;
+    
+    SetTexture(BATTLE_GAME_ASSETS_DIR "textures/serve_volleyball.png");
+    SetTransformation(pos, 0.0f, {0.6f, 0.8f});
+    battle_game::DrawModel(0);
+
+    if (spikeCD != 1) {
+      SetTransformation(pos, 0.0f);
+      SetTexture(0);
+      DrawModel(circle_cover_icon);
+    }
+    for (int i = 0; i < precision; ++i) {
+      auto theta = - float(i) / float(precision);
+      theta *= glm::pi<float>() * 2.0f;
+      SetTransformation(pos, theta);
+      if (i <= spikeCD * precision) {
+        SetColor(front_spikeCDbar_color_);
+      } else {
+        SetColor(background_spikeCDbar_color_);
+      }
+      SetTexture(0);
+      DrawModel(CD_bar_segment_index);
+    }
+  }
+}
+
+/****************************************************************************************/
+
+/************************ These are defined for CD bar of Serve ************************/
+
+void VolleyTank::SetServeCDBarLength(float new_length) {
+  serveCDbar_length_ = std::min(new_length, 0.0f);
+}
+void VolleyTank::SetServeCDBarOffset(glm::vec2 new_offset) {
+  serveCDbar_offset_ = new_offset;
+}
+void VolleyTank::SetServeCDBarFrontColor(glm::vec4 new_color) {
+  front_serveCDbar_color_ = new_color;
+}
+void VolleyTank::SetServeCDBarBackgroundColor(glm::vec4 new_color) {
+  background_serveCDbar_color_ = new_color;
+}
+float VolleyTank::GetServeCDBarLength() {
+  return serveCDbar_length_;
+}
+glm::vec2 VolleyTank::GetServeCDBarOffset() {
+  return serveCDbar_offset_;
+}
+glm::vec4 VolleyTank::GetServeCDBarFrontColor() {
+  return front_serveCDbar_color_;
+}
+glm::vec4 VolleyTank::GetServeCDBarBackgroundColor() {
+  return background_serveCDbar_color_;
+}
+
+void VolleyTank::ShowServeCDBar() {
+  serveCDbar_display_ = true;
+}
+void VolleyTank::HideServeCDBar() {
+  serveCDbar_display_ = false;
+}
+
+void VolleyTank::RenderServeCDBar() {
+  if (serveCDbar_display_) {
+    auto parent_unit = game_core_->GetUnit(id_);
+    auto pos = parent_unit->GetPosition() + serveCDbar_offset_;
+    auto serveCD = GetServeCD();
+    const int precision = 300;
+    
+    battle_game::SetColor(game_core_->GetPlayerColor(player_id_));
+    SetTexture(BATTLE_GAME_ASSETS_DIR "textures/serve_volleyball.png");
+    SetTransformation(pos, 0.0f, {0.6f, 0.8f});
+    battle_game::DrawModel(0);
+
+    if (serveCD != 1) {
+      SetTransformation(pos, 0.0f);
+      SetTexture(0);
+      DrawModel(circle_cover_icon);
+    }
+    for (int i = 0; i < precision; ++i) {
+      auto theta = - float(i) / float(precision);
+      theta *= glm::pi<float>() * 2.0f;
+      SetTransformation(pos, theta);
+      if (i <= serveCD * precision) {
+        SetColor(front_serveCDbar_color_);
+      } else {
+        SetColor(background_serveCDbar_color_);
+      }
+      SetTexture(0);
+      DrawModel(CD_bar_segment_index);
+    }
+  }
+}
+
+/****************************************************************************************/
+
+void VolleyTank::RenderHelper() {
+  battle_game::SetTransformation(position_, rotation_);
+  battle_game::SetColor(game_core_->GetPlayerColor(player_id_));
+
+  battle_game::SetRotation(turret_rotation_);
+  auto player = game_core_->GetPlayer(player_id_);
+  if (player) {
+    auto &input_data = player->GetInputData();
+    if (input_data.key_down[GLFW_KEY_SPACE] && serve_count_down_ == 0) {
+      SetTexture(0);
+      battle_game::DrawModel(serve_turret_model_index);
+    }
+  }
+
+  battle_game::SetRotation(rotation_);
+  SetTexture(BATTLE_GAME_ASSETS_DIR "textures/volleytank.png");
+  battle_game::DrawModel(0);
+
+  battle_game::SetRotation(turret_rotation_);
+  if (player) {
+    auto &input_data = player->GetInputData();
+    if (input_data.key_down[GLFW_KEY_SPACE] && spike_count_down_ == 0) {
+      SetTexture(0);
+      battle_game::DrawModel(spike_turret_model_index);
+    }
+  }
+
+  RenderSpikeCDBar();
+  RenderServeCDBar();
 }
 
 const char *VolleyTank::UnitName() const {
