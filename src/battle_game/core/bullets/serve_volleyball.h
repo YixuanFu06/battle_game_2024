@@ -18,6 +18,8 @@ class ServeVolleyball : public Bullet {
 
  private:
   glm::vec2 velocity_{};
-  std::vector<uint32_t> HadHit;
+  std::vector<uint32_t> HadHit_;
+  float radius_{};
+  float center_distance_;
 };
 }  // namespace battle_game::bullet

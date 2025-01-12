@@ -14,6 +14,8 @@ ServeVolleyball::ServeVolleyball(GameCore *core,
                        glm::vec2 velocity)
     : Bullet(core, id, unit_id, player_id, position, rotation, damage_scale),
       velocity_(velocity) {
+  radius_ = 0.85f;
+  center_distance_ = 0.9f;
 }
 
 void ServeVolleyball::Render() {
@@ -26,8 +28,20 @@ void ServeVolleyball::Render() {
 void ServeVolleyball::Update() {
   position_ += velocity_ * kSecondPerTick;
   bool should_die = false;
-  if (game_core_->IsBlockedByObstacles(position_)) {
-    should_die = true;
+
+  bool IsBlockedByObstacles = false;
+  const int precision = 60;
+  for (int i = 0; i < precision; ++i) {
+    auto theta = 1 / float(precision) * float(i);
+    theta *= glm::pi<float>() * 2.0f;
+    auto sin_theta = std::sin(theta);
+    auto cos_theta = std::cos(theta);
+    auto boundary_position = position_ + glm::vec2{-center_distance_ * std::sin(rotation_) + sin_theta * radius_,
+                                                  center_distance_ * std::cos(rotation_) + cos_theta * radius_};
+    if (game_core_->IsBlockedByObstacles(boundary_position)) {
+      should_die = true;
+      break;
+    }
   }
 
   auto &units = game_core_->GetUnits();
@@ -35,18 +49,31 @@ void ServeVolleyball::Update() {
     if (unit.first == unit_id_) {
       continue;
     }
-    if (unit.second->IsHit(position_)) {
-      bool AlreadyHit = false;
-      for (auto &hit : HadHit) {
-        if (hit == unit.first) {
-          AlreadyHit = true;
+    bool AlreadyHit = false;
+    for (auto &hit : HadHit_) {
+      if (hit == unit.first) {
+        AlreadyHit = true;
+        break;
+      }
+    }
+    if (!AlreadyHit) {
+      bool IsHit = false;
+      for (int i = 0; i < precision; ++i) {
+        auto theta = 1 / float(precision) * float(i);
+        theta *= glm::pi<float>() * 2.0f;
+        auto sin_theta = std::sin(theta);
+        auto cos_theta = std::cos(theta);
+        auto boundary_position = position_ + glm::vec2{-center_distance_ * std::sin(rotation_) + sin_theta * radius_,
+                                                      center_distance_ * std::cos(rotation_) + cos_theta * radius_};
+        if (unit.second->IsHit(boundary_position)) {
+          IsHit = 1;
           break;
         }
       }
-      if (!AlreadyHit) {
+      if (IsHit) {
         game_core_->PushEventDealDamage(unit.first, id_, damage_scale_ * 33.4f);
-        // should_die = true;
-        HadHit.push_back(unit.first);
+        // should_die = true; // The bullet will not die after hitting a unit
+        HadHit_.push_back(unit.first);
       }
     }
   }
@@ -59,7 +86,8 @@ void ServeVolleyball::Update() {
 ServeVolleyball::~ServeVolleyball() {
   for (int i = 0; i < 5; i++) {
     game_core_->PushEventGenerateParticle<particle::Smoke>(
-        position_, rotation_, game_core_->RandomInCircle() * 2.0f, 0.2f,
+        position_ + glm::vec2{-center_distance_ * std::sin(rotation_), center_distance_ * std::cos(rotation_)},
+        rotation_, game_core_->RandomInCircle() * 2.0f, 0.2f,
         glm::vec4{0.0f, 0.0f, 0.0f, 1.0f}, 3.0f);
   }
 }

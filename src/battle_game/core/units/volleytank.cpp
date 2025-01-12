@@ -17,6 +17,7 @@ uint32_t CD_bar_segment_index = 0xffffffffu;
 
 VolleyTank::VolleyTank(GameCore *game_core, uint32_t id, uint32_t player_id)
     : Unit(game_core, id, player_id) {
+  lifebar_offset_ = {0.0f, 1.2f};
   if (!~spike_turret_model_index) {
     auto mgr = AssetsManager::GetInstance();
     {
@@ -110,11 +111,11 @@ VolleyTank::VolleyTank(GameCore *game_core, uint32_t id, uint32_t player_id)
     }
   }
 
-  spikeCDbar_offset_ = {16.0f, -8.0f};
+  spikeCDbar_offset_ = {16.0f, -8.5f};
   background_spikeCDbar_color_ = {0.0f, 0.0f, 0.0f, 0.3f};
   front_spikeCDbar_color_ = {0.0f, 0.2f, 0.7f, 0.8f};
 
-  serveCDbar_offset_ = {13.0f, -8.0f};
+  serveCDbar_offset_ = {13.0f, -8.5f};
   background_serveCDbar_color_ = {0.0f, 0.0f, 0.0f, 0.3f};
   front_serveCDbar_color_ = {0.7f, 0.0f, 0.2f, 0.8f};
 
@@ -281,9 +282,12 @@ void VolleyTank::Spike() {
 
 bool VolleyTank::IsHit(glm::vec2 position) const {
   position = WorldToLocal(position);
+  return sqrt(position.x * position.x + position.y * position.y) < 1.0f;
+  /*
   return position.x > -0.8f && position.x < 0.8f && position.y > -1.0f &&
          position.y < 1.0f && position.x + position.y < 1.6f &&
          position.y - position.x < 1.6f;
+  */
 }
 
 /************************ These are defined for CD bar of Spike ************************/
@@ -327,9 +331,21 @@ void VolleyTank::RenderSpikeCDBar() {
     auto spikeCD = GetSpikeCD();
     const int precision = 300;
     
-    SetTexture(BATTLE_GAME_ASSETS_DIR "textures/serve_volleyball.png");
-    SetTransformation(pos, 0.0f, {0.6f, 0.8f});
+    SetTexture(BATTLE_GAME_ASSETS_DIR "textures/volleytank.png");
+    SetTransformation(pos - glm::vec2{0.0f, 0.2f}, rotation_, {0.4f, 0.4f});
     battle_game::DrawModel(0);
+
+    const float decoration_radius = 0.65f;
+    const float decoration_offset = 0.15f;
+    const float angle_inteval = glm::pi<float>() / 6;
+
+    for (int i = -2 ; i <= 2; ++i) {
+      auto theta = angle_inteval * float(i);
+      SetTexture(BATTLE_GAME_ASSETS_DIR "textures/volleyball.png");
+      SetTransformation(pos + glm::vec2{decoration_radius * std::sin(theta), decoration_radius * std::cos(theta) - decoration_offset},
+                       theta, glm::vec2{0.1f});
+      battle_game::DrawModel(0);
+    }
 
     if (spikeCD != 1) {
       SetTransformation(pos, 0.0f);
