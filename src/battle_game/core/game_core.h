@@ -4,6 +4,7 @@
 #include "battle_game/core/input_data.h"
 #include "battle_game/core/obstacle.h"
 #include "battle_game/core/obstacles/obstacles.h"
+#include "battle_game/core/obstacles/setter.h"
 #include "battle_game/core/particle.h"
 #include "battle_game/core/particles/particles.h"
 #include "battle_game/core/player.h"
@@ -51,6 +52,16 @@ class GameCore {
     auto obstacle_index = obstacle_index_++;
     obstacles_[obstacle_index] = std::make_unique<ObstacleType>(
         this, obstacle_index, position, rotation, args...);
+    return obstacle_index;
+  }
+
+  template <class ObstacleType, class... Args>
+  uint32_t AddObstacle(std::vector<glm::vec2> vertices,
+                       float rotation = 0.0f,
+                       Args... args) {
+    auto obstacle_index = obstacle_index_++;
+    obstacles_[obstacle_index] =
+        std::make_unique<ObstacleType>(this, obstacle_index, vertices, rotation, args...);
     return obstacle_index;
   }
 

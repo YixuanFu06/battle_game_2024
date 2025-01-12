@@ -111,7 +111,7 @@ VolleyTank::VolleyTank(GameCore *game_core, uint32_t id, uint32_t player_id)
     }
   }
 
-  spikeCDbar_offset_ = {16.0f, -8.5f};
+  spikeCDbar_offset_ = {15.75f, -8.5f};
   background_spikeCDbar_color_ = {0.0f, 0.0f, 0.0f, 0.3f};
   front_spikeCDbar_color_ = {0.0f, 0.2f, 0.7f, 0.8f};
 
@@ -331,6 +331,7 @@ void VolleyTank::RenderSpikeCDBar() {
     auto spikeCD = GetSpikeCD();
     const int precision = 300;
     
+    battle_game::SetColor(game_core_->GetPlayerColor(player_id_));
     SetTexture(BATTLE_GAME_ASSETS_DIR "textures/volleytank.png");
     SetTransformation(pos - glm::vec2{0.0f, 0.2f}, rotation_, {0.4f, 0.4f});
     battle_game::DrawModel(0);
